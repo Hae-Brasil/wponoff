@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Autor: Matheus Santana
+# Descrição: Simples ferramenta para identificação de site em WordPress.
+print_banner(){
+    clear; echo -e """╦ ╦┌─┐┌─┐┌┐┌┌─┐┌─┐┌─┐
+║║║├─┘│ │││││ │├┤ ├┤ 
+╚╩╝┴  └─┘┘└┘└─┘└  └"""
+}
+
+[[ $2 == "" ]] && echo -e "Utilize o parametro -u ou --url em seguida adicione o endereço do site.\nEx:\n\t./wponoff --url https://www.google.com" && exit
+status_code=$(curl -s --head $2 | head -n1 | cut -d" " -f2)
+source_code=`curl -s $2` >> /dev/null
+response=$(echo $source_code | grep -Fo "wp-includes" | head -n1)
+[[ $status_code != 200 ]] && echo -e "Ops... Url inválida!" && exit
+url=$2; ip=$(ping -c1 ${url#https://} | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]" | head -n1)
+
+case $1 in 
+    --url|-u) print_banner
+    if [[ $response == "wp-content" ]] || [[ $response == "wp-includes" ]];then
+        echo -e "• Wordpress: Yes 😀\n• Site: ${url#https://}\n• IP: $ip"
+    else
+        echo -e "• Wordpress: No 🙂\n• Site: ${url#https://}\n• IP: $ip"
+    fi;;
+esac
