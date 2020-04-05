@@ -11,12 +11,13 @@ print_banner(){
 status_code=$(curl -s --head $2 | head -n1 | cut -d" " -f2)
 source_code=`curl -s $2` >> /dev/null
 response=$(echo $source_code | grep -Fo "wp-includes" | head -n1)
+response2=$(echo $source_code | grep -Fo "wp-content" | head -n1)
 [[ $status_code != 200 ]] && echo -e "Ops... Url inválida!" && exit
 url=$2; ip=$(ping -c1 ${url#https://} | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]" | head -n1)
 
 case $1 in 
     --url|-u) print_banner
-    if [[ $response == "wp-content" ]] || [[ $response == "wp-includes" ]];then
+    if [[ $response2 == "wp-content" ]] || [[ $response == "wp-includes" ]];then
         echo -e "• Wordpress: Yes 😀\n• Site: ${url#https://}\n• IP: $ip"
     else
         echo -e "• Wordpress: No 🙂\n• Site: ${url#https://}\n• IP: $ip"
